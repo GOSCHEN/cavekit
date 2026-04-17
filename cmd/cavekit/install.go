@@ -8,8 +8,10 @@ import (
 	"github.com/JuliusBrussee/cavekit/internal/install"
 )
 
-const installUsage = `Usage: cavekit install {sync-codex}
+const installUsage = `Usage: cavekit install {plugin|sync-codex|all}
+  plugin        Link Cavekit into Claude Code marketplace + merge settings.json
   sync-codex    Link Cavekit into Codex local plugins + prompts + marketplace
+  all           Run both plugin and sync-codex
 `
 
 func runInstall(args []string) {
@@ -26,7 +28,15 @@ func runInstall(args []string) {
 
 func dispatchInstall(sub string, args []string, out io.Writer) error {
 	switch sub {
+	case "plugin":
+		return install.InstallPlugin(install.PluginOptions{}, out)
 	case "sync-codex":
+		return install.SyncCodex(install.SyncCodexOptions{}, out)
+	case "all":
+		if err := install.InstallPlugin(install.PluginOptions{}, out); err != nil {
+			return err
+		}
+		fmt.Fprintln(out, "")
 		return install.SyncCodex(install.SyncCodexOptions{}, out)
 	case "help", "--help", "-h", "":
 		fmt.Fprint(out, installUsage)

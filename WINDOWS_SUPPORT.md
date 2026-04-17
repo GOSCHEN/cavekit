@@ -80,7 +80,7 @@ SendKeys / Capture / Kill
 | **M2** Windows TUI + multiplexer | T-005a, T-005b, T-005c, T-007 | E2E test green on Windows 11 | ✅ shipped |
 | **M3** Go-native plugin backend | T-004, T-008..T-019 | Golden-file parity tests vs shell | ✅ shipped |
 | **M4** Plugin cut-over | T-020..T-022 | Slash commands call `cavekit` not `.sh` | ✅ shipped |
-| **M5** Installers | T-023..T-025 | Clean-VM installs both OSes | pending |
+| **M5** Installers | T-023..T-025 | Clean-VM installs both OSes | ✅ shipped |
 | **M6** Polish | T-026..T-030 | Docs + 2.1.0 release | pending |
 
 ## Task index
@@ -125,9 +125,9 @@ Per task: golden-file parity tests — feed same inputs to shell and Go impl, di
 
 ### Tier 4 — Installers (pending)
 
-- **T-023** `install.ps1`: verify wt.exe + git + claude, install binary to `%LOCALAPPDATA%\Programs\cavekit`, directory junctions for marketplace, settings.json merge via `ConvertFrom-Json`
-- **T-024** `install.sh`: trim to bootstrap, delegate to `cavekit install`
-- **T-025** `cavekit install` subcommand — cross-platform orchestrator
+- **T-023** ✅ `install.ps1`: verify wt.exe + git + claude, install binary to `%LOCALAPPDATA%\Programs\cavekit`, directory junctions for marketplace, settings.json merge via `ConvertFrom-Json`
+- **T-024** ✅ `install.sh`: trim to bootstrap, delegate to `cavekit install`
+- **T-025** ✅ `cavekit install` subcommand — cross-platform orchestrator
 
 ### Tier 5 — Polish (pending)
 

@@ -34,9 +34,9 @@ Each task: golden-file parity tests vs existing `.sh`.
 
 ## M5 — Installers
 
-- [ ] **T-023** `install.ps1` (junctions, settings.json merge via ConvertFrom-Json)
-- [ ] **T-024** Trim `install.sh` to bootstrap only
-- [ ] **T-025** `cavekit install` cross-platform orchestrator
+- [x] **T-023** `install.ps1` (junctions, settings.json merge via ConvertFrom-Json)
+- [x] **T-024** Trim `install.sh` to bootstrap only
+- [x] **T-025** `cavekit install` cross-platform orchestrator
 
 ## M6 — Polish
 
