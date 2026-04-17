@@ -8,23 +8,23 @@ Full plan: [`WINDOWS_SUPPORT.md`](WINDOWS_SUPPORT.md)
 - [x] **M2** Multiplexer interface + Windows ConPTY daemon + wt.exe frontend
 - [x] E2E integration test (`CAVEKIT_WINDOWS_E2E=1`) green
 
-## Next — M3: Port bash scripts to Go
+## M3: Port bash scripts to Go — ✅ shipped
 
 Each task: golden-file parity tests vs existing `.sh`.
 
-- [ ] **T-004** `internal/config` — port `scripts/bp-config.sh` (498 LOC); expose as `cavekit config`
-- [ ] **T-008** `cavekit codex detect` ← `scripts/codex-detect.sh`
-- [ ] **T-009** `internal/codex` findings parser ← `scripts/codex-findings.sh`
-- [ ] **T-010** `cavekit codex review` ← `scripts/codex-review.sh`
-- [ ] **T-011** `cavekit codex gate` ← `scripts/codex-gate.sh`
-- [ ] **T-012** `cavekit codex speculative` ← `scripts/codex-speculative.sh`
-- [ ] **T-013** `cavekit codex design` ← `scripts/codex-design-challenge.sh` (553 LOC — biggest)
-- [ ] **T-014** `cavekit command-gate` ← `scripts/command-gate.sh` (PreToolUse hook)
-- [ ] **T-015** `cavekit setup-build` ← `scripts/setup-build.sh` (579 LOC)
-- [ ] **T-016** `cavekit install sync-codex` ← `scripts/sync-codex-plugin.sh` (junctions on Windows)
-- [ ] **T-017** `cavekit analytics|dashboard|poll` ← `scripts/cavekit-analytics.sh` + `dashboard-*.sh` + `cavekit-status-poller.sh`
-- [ ] **T-018** Bubbletea picker inside `cavekit monitor` ← `scripts/cavekit-picker.ts` (drops Node/tsx dep)
-- [ ] **T-019** `cavekit launch` ← `scripts/cavekit-launch-session.sh`
+- [x] **T-004** `internal/config` — port `scripts/bp-config.sh` (498 LOC); expose as `cavekit config` (parity test via `CAVEKIT_PARITY=1`)
+- [x] **T-008** `cavekit codex detect` ← `scripts/codex-detect.sh`
+- [x] **T-009** `internal/codex` findings parser ← `scripts/codex-findings.sh` (exposed via `cavekit codex findings`)
+- [x] **T-010** `cavekit codex review` ← `scripts/codex-review.sh`
+- [x] **T-011** `cavekit codex gate` ← `scripts/codex-gate.sh`
+- [x] **T-012** `cavekit codex speculative` ← `scripts/codex-speculative.sh`
+- [x] **T-013** `cavekit codex design` ← `scripts/codex-design-challenge.sh` (553 LOC — biggest)
+- [x] **T-014** `cavekit command-gate` ← `scripts/command-gate.sh` (PreToolUse hook)
+- [x] **T-015** `cavekit setup-build` ← `scripts/setup-build.sh` (579 LOC)
+- [x] **T-016** `cavekit install sync-codex` ← `scripts/sync-codex-plugin.sh` (junctions on Windows)
+- [x] **T-017** `cavekit analytics|dashboard|poll` ← `scripts/cavekit-analytics.sh` + `dashboard-*.sh` + `cavekit-status-poller.sh`
+- [x] **T-018** Bubbletea picker inside `cavekit picker` ← `scripts/cavekit-picker.ts` (drops Node/tsx dep)
+- [x] **T-019** `cavekit launch` ← `scripts/cavekit-launch-session.sh`
 
 ## M4 — Plugin cut-over
 

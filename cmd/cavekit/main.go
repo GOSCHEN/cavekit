@@ -43,9 +43,29 @@ func main() {
 		runDebug()
 	case "reset":
 		runReset()
+	case "config":
+		runConfig(os.Args[2:])
+	case "codex":
+		runCodex(os.Args[2:])
+	case "command-gate":
+		runCommandGate(os.Args[2:])
+	case "setup-build":
+		runSetupBuild(os.Args[2:])
+	case "install":
+		runInstall(os.Args[2:])
+	case "analytics":
+		runAnalytics(os.Args[2:])
+	case "dashboard":
+		runDashboard(os.Args[2:])
+	case "poll":
+		runPoll(os.Args[2:])
+	case "picker":
+		runPicker(os.Args[2:])
+	case "launch":
+		runLaunch(os.Args[2:])
 	default:
 		fmt.Fprintf(os.Stderr, "unknown command: %s\n", cmd)
-		fmt.Fprintln(os.Stderr, "usage: cavekit [monitor|status|kill|version|debug|reset]")
+		fmt.Fprintln(os.Stderr, "usage: cavekit [monitor|status|kill|version|debug|reset|config|codex|command-gate|setup-build|install|analytics|dashboard|poll|picker|launch]")
 		os.Exit(1)
 	}
 }

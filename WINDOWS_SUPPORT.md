@@ -78,7 +78,7 @@ SendKeys / Capture / Kill
 |-----------|-------|------|--------|
 | **M1** Cross-compile green | T-001, T-002, T-003 | `GOOS=windows go build ./...` passes, tests green | ✅ shipped |
 | **M2** Windows TUI + multiplexer | T-005a, T-005b, T-005c, T-007 | E2E test green on Windows 11 | ✅ shipped |
-| **M3** Go-native plugin backend | T-004, T-008..T-019 | Golden-file parity tests vs shell | ⏳ next |
+| **M3** Go-native plugin backend | T-004, T-008..T-019 | Golden-file parity tests vs shell | ✅ shipped |
 | **M4** Plugin cut-over | T-020..T-022 | Slash commands call `cavekit` not `.sh` | pending |
 | **M5** Installers | T-023..T-025 | Clean-VM installs both OSes | pending |
 | **M6** Polish | T-026..T-030 | Docs + 2.1.0 release | pending |
@@ -101,19 +101,19 @@ SendKeys / Capture / Kill
 
 ### Tier 2 — Port scripts to Go (pending)
 
-- **T-004** Config package (`scripts/bp-config.sh` 498 LOC → `internal/config` + `cavekit config`)
-- **T-008** `codex-detect.sh` → `cavekit codex detect`
-- **T-009** `codex-findings.sh` → `internal/codex/findings.go`
-- **T-010** `codex-review.sh` → `cavekit codex review`
-- **T-011** `codex-gate.sh` → `cavekit codex gate`
-- **T-012** `codex-speculative.sh` → `cavekit codex speculative`
-- **T-013** `codex-design-challenge.sh` (553 LOC) → `cavekit codex design`
-- **T-014** `command-gate.sh` → `cavekit command-gate` (PreToolUse hook)
-- **T-015** `setup-build.sh` (579 LOC) → `cavekit setup-build`
-- **T-016** `sync-codex-plugin.sh` → `cavekit install sync-codex` (junctions on Windows)
-- **T-017** `cavekit-analytics.sh`, `dashboard-*.sh`, `cavekit-status-poller.sh` → `cavekit analytics|dashboard|poll`
-- **T-018** Replace Node.js `cavekit-picker.ts` with Bubbletea picker inside `cavekit`
-- **T-019** `cavekit-launch-session.sh` → `cavekit launch`
+- **T-004** ✅ Config package (`scripts/bp-config.sh` 498 LOC → `internal/config` + `cavekit config`)
+- **T-008** ✅ `codex-detect.sh` → `cavekit codex detect`
+- **T-009** ✅ `codex-findings.sh` → `internal/codex/findings.go`
+- **T-010** ✅ `codex-review.sh` → `cavekit codex review`
+- **T-011** ✅ `codex-gate.sh` → `cavekit codex gate`
+- **T-012** ✅ `codex-speculative.sh` → `cavekit codex speculative`
+- **T-013** ✅ `codex-design-challenge.sh` (553 LOC) → `cavekit codex design`
+- **T-014** ✅ `command-gate.sh` → `cavekit command-gate` (PreToolUse hook)
+- **T-015** ✅ `setup-build.sh` (579 LOC) → `cavekit setup-build`
+- **T-016** ✅ `sync-codex-plugin.sh` → `cavekit install sync-codex` (junctions on Windows)
+- **T-017** ✅ `cavekit-analytics.sh`, `dashboard-*.sh`, `cavekit-status-poller.sh` → `cavekit analytics|dashboard|poll`
+- **T-018** ✅ Replace Node.js `cavekit-picker.ts` with Bubbletea picker inside `cavekit`
+- **T-019** ✅ `cavekit-launch-session.sh` → `cavekit launch`
 
 Per task: golden-file parity tests — feed same inputs to shell and Go impl, diff output modulo whitespace.
 
