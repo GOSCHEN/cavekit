@@ -220,7 +220,7 @@ func (s *Store) List(scope Scope) ([]string, error) {
 	var out []string
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		line := scanner.Text()
+		line := strings.TrimRight(scanner.Text(), "\r")
 		if looksLikeConfigLine(line) {
 			out = append(out, line)
 		}

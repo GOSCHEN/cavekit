@@ -4,6 +4,7 @@ package mux
 
 import (
 	"context"
+	"encoding/binary"
 	"fmt"
 	"io"
 	"net"
@@ -203,6 +204,22 @@ func (d *Daemon) handleConn(conn io.ReadWriteCloser) {
 		_ = writeFrame(conn, opOK, tail)
 	case opCaptureFull:
 		_ = writeFrame(conn, opOK, d.ringBuf.Snapshot())
+	case opResize:
+		if len(payload) != 8 {
+			_ = writeFrame(conn, opErr, []byte("opResize payload must be 8 bytes"))
+			return
+		}
+		cols := int(binary.BigEndian.Uint32(payload[:4]))
+		rows := int(binary.BigEndian.Uint32(payload[4:]))
+		if cols <= 0 || rows <= 0 {
+			_ = writeFrame(conn, opErr, []byte("opResize dimensions must be positive"))
+			return
+		}
+		if err := d.pty.Resize(cols, rows); err != nil {
+			_ = writeFrame(conn, opErr, []byte(err.Error()))
+			return
+		}
+		_ = writeFrame(conn, opOK, nil)
 	case opKill:
 		_ = writeFrame(conn, opOK, nil)
 		d.shutdown()
@@ -251,11 +268,16 @@ func (w *ptyWriter) Write(p []byte) (int, error) { return w.p.Write(p) }
 
 func (d *Daemon) shutdown() {
 	d.killOnce.Do(func() {
+		// Escalate to the whole process tree. The ConPTY child may have
+		// spawned grandchildren (claude → node → codex …) that survive a
+		// plain pty.Close. taskkill /T /F walks the tree.
+		if d.pty != nil {
+			pid := d.pty.Pid()
+			if pid > 0 {
+				_ = osexec.Command("taskkill.exe", "/T", "/F", "/PID", fmt.Sprintf("%d", pid)).Run()
+			}
+		}
 		close(d.done)
 	})
 }
 
-// Compile-time compile guard — osexec unused directly now but the
-// daemon may shell out later (e.g. for resize hints). Keep the import
-// hidden behind a nop assignment so staticcheck stays quiet.
-var _ = osexec.Command

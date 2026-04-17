@@ -81,7 +81,7 @@ SendKeys / Capture / Kill
 | **M3** Go-native plugin backend | T-004, T-008..T-019 | Golden-file parity tests vs shell | ✅ shipped |
 | **M4** Plugin cut-over | T-020..T-022 | Slash commands call `cavekit` not `.sh` | ✅ shipped |
 | **M5** Installers | T-023..T-025 | Clean-VM installs both OSes | ✅ shipped |
-| **M6** Polish | T-026..T-030 | Docs + 2.1.0 release | pending |
+| **M6** Polish | T-026..T-030 | Docs + 2.1.0 release | ✅ shipped |
 
 ## Task index
 
@@ -131,11 +131,11 @@ Per task: golden-file parity tests — feed same inputs to shell and Go impl, di
 
 ### Tier 5 — Polish (pending)
 
-- **T-026** Process tree kill (`taskkill /T /F` on Windows, SIGTERM→SIGKILL on Unix)
-- **T-027** Signal handling — replace SIGWINCH with `ReadConsoleInput` WINDOW_BUFFER_SIZE events on Windows
-- **T-028** Line endings — config readers tolerate CRLF
-- **T-029** Filesystem case-insensitivity — normalize worktree names lowercase on Windows compare
-- **T-030** README + Windows quickstart + limitations table
+- **T-026** ✅ Process tree kill (`taskkill /T /F` on Windows, tmux kill-session on Unix)
+- **T-027** ✅ Console-size polling → `opResize` frame (replaces SIGWINCH dependency)
+- **T-028** ✅ Line endings — config/site/build/stats/gate readers tolerate CRLF
+- **T-029** ✅ Case-folded worktree name comparison on Windows/macOS
+- **T-030** ✅ README Windows quickstart + limitations table
 
 ## Risk register
 

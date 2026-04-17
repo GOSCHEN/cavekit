@@ -46,6 +46,7 @@ const (
 	opCaptureFull  byte = 0x04 // client → daemon: return full ring buffer
 	opKill         byte = 0x05 // client → daemon: terminate child and exit
 	opAttach       byte = 0x06 // client → daemon: bidirectional stream for wt.exe tab
+	opResize       byte = 0x07 // client → daemon: payload = [4 BE cols][4 BE rows]
 	opOK           byte = 0x10 // daemon → client: success (payload optional)
 	opErr          byte = 0x11 // daemon → client: error, payload is message text
 )

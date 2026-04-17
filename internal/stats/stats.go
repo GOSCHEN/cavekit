@@ -76,7 +76,7 @@ func ParseLoopLog(path string) (LoopLogMetrics, error) {
 	scanner := bufio.NewScanner(bytes.NewReader(data))
 	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
 	for scanner.Scan() {
-		line := scanner.Text()
+		line := strings.TrimRight(scanner.Text(), "\r")
 		if m := iterRe.FindStringSubmatch(line); len(m) == 2 {
 			flush()
 			n := 0
@@ -291,7 +291,7 @@ func implStatuses(projectRoot string) map[string]TaskStatus {
 		}
 		scanner := bufio.NewScanner(bytes.NewReader(data))
 		for scanner.Scan() {
-			line := scanner.Text()
+			line := strings.TrimRight(scanner.Text(), "\r")
 			id := firstTaskID(line)
 			if id == "" {
 				continue

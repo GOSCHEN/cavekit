@@ -3,7 +3,6 @@ package worktree
 import (
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 // DiscoveredWorktree represents a found Cavekit worktree.
@@ -32,11 +31,11 @@ func DiscoverAll(projectRoot string) ([]DiscoveredWorktree, error) {
 			continue
 		}
 		name := entry.Name()
-		if !strings.HasPrefix(name, pattern) {
+		if !hasFoldedPrefix(name, pattern) {
 			continue
 		}
 
-		siteName := strings.TrimPrefix(name, pattern)
+		siteName := trimFoldedPrefix(name, pattern)
 		wtPath := filepath.Join(parentDir, name)
 
 		// Check for active Ralph Loop

@@ -76,7 +76,9 @@ func (m *Manager) Create(ctx context.Context, projectRoot, siteName string) (str
 
 // Exists checks if a worktree path is registered with git.
 // Normalizes path separators so Windows native backslashes match git's
-// porcelain output (which uses forward slashes).
+// porcelain output (which uses forward slashes). On case-insensitive
+// filesystems (Windows/macOS) the comparison is also case-folded so
+// `C:\Foo` and `c:\foo` register as the same worktree.
 func (m *Manager) Exists(ctx context.Context, projectRoot, wtPath string) bool {
 	res, err := m.exec.RunDir(ctx, projectRoot, "git", "worktree", "list", "--porcelain")
 	if err != nil {
@@ -84,6 +86,9 @@ func (m *Manager) Exists(ctx context.Context, projectRoot, wtPath string) bool {
 	}
 	needle := filepath.ToSlash(wtPath)
 	haystack := filepath.ToSlash(res.Stdout)
+	if caseInsensitiveFS() {
+		return strings.Contains(strings.ToLower(haystack), strings.ToLower(needle))
+	}
 	return strings.Contains(haystack, needle)
 }
 

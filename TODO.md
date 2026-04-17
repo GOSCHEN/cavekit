@@ -40,11 +40,11 @@ Each task: golden-file parity tests vs existing `.sh`.
 
 ## M6 — Polish
 
-- [ ] **T-026** Process tree kill (`taskkill /T /F` on Windows)
-- [ ] **T-027** Replace SIGWINCH with Windows `ReadConsoleInput` resize events
-- [ ] **T-028** CRLF tolerance in config readers
-- [ ] **T-029** Lowercase-normalize worktree names on Windows compare
-- [ ] **T-030** README Windows quickstart + limitations
+- [x] **T-026** Process tree kill (`taskkill /T /F` on Windows)
+- [x] **T-027** Console-size polling sends `opResize` (replaces SIGWINCH dependency)
+- [x] **T-028** CRLF tolerance in config/site/build/stats/gate readers
+- [x] **T-029** Case-folded worktree name match on Windows/macOS
+- [x] **T-030** README Windows quickstart + limitations
 
 ## Open questions
 

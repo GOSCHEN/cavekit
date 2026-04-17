@@ -61,7 +61,7 @@ func Parse(path string) (*Site, error) {
 	currentTier := -1
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		line := scanner.Text()
+		line := strings.TrimRight(scanner.Text(), "\r")
 
 		// Detect tier headers: "## Tier N" or "## Tier N —"
 		if strings.HasPrefix(line, "## Tier ") {

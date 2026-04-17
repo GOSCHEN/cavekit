@@ -97,8 +97,66 @@ func runMuxAttach() {
 	// Daemon → stdout.
 	go func() { _, _ = io.Copy(os.Stdout, conn) }()
 
+	// Poll console size and push resize events to the daemon.
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go pollAndSendResize(ctx, name)
+
 	// Stdin → daemon.
 	_, _ = io.Copy(conn, os.Stdin)
+}
+
+// pollAndSendResize watches the current console buffer size and forwards
+// each change to the daemon via a short-lived opResize pipe call. Polling
+// (500ms) is used instead of ReadConsoleInputW WINDOW_BUFFER_SIZE events
+// because the attach client has already put stdin into raw VT mode for the
+// child — re-reading input records would compete with that stream.
+func pollAndSendResize(ctx context.Context, name string) {
+	stdout, err := windows.GetStdHandle(windows.STD_OUTPUT_HANDLE)
+	if err != nil {
+		return
+	}
+
+	var lastCols, lastRows int
+	tick := time.NewTicker(500 * time.Millisecond)
+	defer tick.Stop()
+
+	send := func(cols, rows int) {
+		if cols <= 0 || rows <= 0 {
+			return
+		}
+		if cols == lastCols && rows == lastRows {
+			return
+		}
+		lastCols, lastRows = cols, rows
+		_ = mux.SendResize(ctx, name, cols, rows)
+	}
+
+	// Initial push so the daemon picks up the tab's actual dimensions
+	// rather than the 120x30 default baked into the ConPTY creation.
+	if cols, rows, ok := consoleSize(stdout); ok {
+		send(cols, rows)
+	}
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-tick.C:
+			if cols, rows, ok := consoleSize(stdout); ok {
+				send(cols, rows)
+			}
+		}
+	}
+}
+
+func consoleSize(h windows.Handle) (int, int, bool) {
+	var info windows.ConsoleScreenBufferInfo
+	if err := windows.GetConsoleScreenBufferInfo(h, &info); err != nil {
+		return 0, 0, false
+	}
+	cols := int(info.Window.Right - info.Window.Left + 1)
+	rows := int(info.Window.Bottom - info.Window.Top + 1)
+	return cols, rows, true
 }
 
 // durationPtr helps the winio.DialPipe timeout API, which takes *time.Duration.

@@ -121,16 +121,41 @@ Spec is the product. Code is the derivative.
 
 ## Install
 
+### macOS / Linux
+
 ```bash
 git clone https://github.com/JuliusBrussee/cavekit.git ~/.cavekit
 cd ~/.cavekit && ./install.sh
 ```
 
-Registers the plugin with Claude Code, syncs into Codex marketplace, installs the `cavekit` CLI. Restart Claude Code after installing.
+### Windows
 
-**Requires:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code), git, macOS/Linux.
+```powershell
+git clone https://github.com/JuliusBrussee/cavekit.git $env:USERPROFILE\.cavekit
+& $env:USERPROFILE\.cavekit\install.ps1
+```
+
+Both installers build the `cavekit` binary, place it on `PATH`, register the plugin with Claude Code, and sync into the Codex marketplace. Restart Claude Code after installing.
+
+**Requires:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code), git, Go 1.22+.
+- macOS/Linux: any recent version.
+- Windows: **Windows 10 1809+**, **Windows Terminal (`wt.exe`) 1.18+** (required for the parallel launcher; ConPTY is the mux backend).
 
 **Optional:** [Codex](https://github.com/openai/codex) (`npm install -g @openai/codex`) — adds adversarial review. Cavekit works without it. Codex makes it significantly harder to ship flawed specs and broken code.
+
+### Windows notes + limitations
+
+| Area | Behavior |
+|------|----------|
+| Multiplexer | `wt.exe` tabs driven by a per-session ConPTY daemon (not tmux). |
+| Session backend | One detached `cavekit mux-daemon` per session; discovery via `%USERPROFILE%\.cavekit\sessions\*.json`. |
+| Kill semantics | `taskkill /T /F` walks the full ConPTY child tree so grandchildren (e.g. `claude` → `node` → `codex`) exit together. |
+| Install links | Marketplace uses **directory junctions** (no admin required); command prompts use **hard links** then copy fallback. |
+| Symlinks | Real NTFS symlinks need Developer Mode or Admin. Cavekit avoids them. |
+| Filesystem casing | Worktree name matching is case-insensitive under Windows/macOS so `MyProject-cavekit-foo` and `myproject-cavekit-foo` resolve to the same session. |
+| Line endings | All config/markdown readers tolerate CRLF; writes use LF. |
+| Attach resize | Console-size polling (500 ms) sends `opResize` frames to the daemon — no `SIGWINCH` dependency. |
+| Plugin hooks | `hooks.json` ships the PreToolUse gate; `cavekit command-gate hook` reads the JSON payload from stdin. |
 
 ---
 

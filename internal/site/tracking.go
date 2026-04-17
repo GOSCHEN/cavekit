@@ -83,7 +83,7 @@ func scanImplFile(path string, statuses TaskStatusMap) error {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		line := scanner.Text()
+		line := strings.TrimRight(scanner.Text(), "\r")
 		matches := taskStatusLinePattern.FindAllStringSubmatch(line, -1)
 		for _, m := range matches {
 			if len(m) >= 3 {

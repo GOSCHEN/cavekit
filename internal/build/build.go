@@ -258,7 +258,7 @@ func countTasks(path string) int {
 	ids := map[string]struct{}{}
 	scanner := bufio.NewScanner(bytes.NewReader(data))
 	for scanner.Scan() {
-		line := scanner.Text()
+		line := strings.TrimRight(scanner.Text(), "\r")
 		// A task row is any markdown table line whose first cell matches
 		// T-<id>. grep -cE counts lines — we follow the same interpretation.
 		trimmed := strings.TrimSpace(line)
@@ -373,7 +373,7 @@ func taskIsDone(implPath, taskID string) bool {
 	idBoundary := regexp.MustCompile(`\b` + regexp.QuoteMeta(taskID) + `\b`)
 	scanner := bufio.NewScanner(bytes.NewReader(data))
 	for scanner.Scan() {
-		line := scanner.Text()
+		line := strings.TrimRight(scanner.Text(), "\r")
 		if !strings.Contains(line, "DONE") {
 			continue
 		}

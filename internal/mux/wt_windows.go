@@ -220,6 +220,47 @@ func (w *wtMultiplexer) SendCommand(ctx context.Context, name, cmd string) error
 	return w.SendKeys(ctx, name, cmd, "Enter")
 }
 
+// Resize tells the daemon to reshape its ConPTY. Invoked by the attach
+// client in response to WINDOW_BUFFER_SIZE events (or, on startup, to set
+// the initial viewport from the current console dimensions).
+func (w *wtMultiplexer) Resize(ctx context.Context, name string, cols, rows int) error {
+	return SendResize(ctx, name, cols, rows)
+}
+
+// SendResize is a package-level helper so attach clients (which already have
+// the session name in hand and don't need a full wtMultiplexer) can push
+// dimension updates without building the whole adapter.
+func SendResize(ctx context.Context, name string, cols, rows int) error {
+	payload := make([]byte, 8)
+	payload[0] = byte(cols >> 24)
+	payload[1] = byte(cols >> 16)
+	payload[2] = byte(cols >> 8)
+	payload[3] = byte(cols)
+	payload[4] = byte(rows >> 24)
+	payload[5] = byte(rows >> 16)
+	payload[6] = byte(rows >> 8)
+	payload[7] = byte(rows)
+
+	dialCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+	conn, err := winio.DialPipeContext(dialCtx, pipeName(name))
+	if err != nil {
+		return fmt.Errorf("dial pipe: %w", err)
+	}
+	defer conn.Close()
+	if err := writeFrame(conn, opResize, payload); err != nil {
+		return fmt.Errorf("write resize: %w", err)
+	}
+	op, body, err := readFrame(conn)
+	if err != nil {
+		return fmt.Errorf("read reply: %w", err)
+	}
+	if op == opErr {
+		return fmt.Errorf("daemon error: %s", string(body))
+	}
+	return nil
+}
+
 // CapturePane returns the tail of the daemon's ring buffer (~ visible viewport).
 func (w *wtMultiplexer) CapturePane(ctx context.Context, name string) (string, error) {
 	_, payload, err := w.rpc(ctx, name, opCapturePane, nil)
