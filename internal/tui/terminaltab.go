@@ -3,31 +3,32 @@ package tui
 import (
 	"context"
 
-	"github.com/JuliusBrussee/cavekit/internal/tmux"
+	"github.com/JuliusBrussee/cavekit/internal/mux"
 )
 
-// TerminalTab manages a separate tmux session for shell access in the worktree.
+// TerminalTab manages a separate multiplexer session for shell access in
+// the worktree.
 type TerminalTab struct {
-	tmuxMgr  *tmux.Manager
+	muxer    mux.Multiplexer
 	sessions map[string]string // instance title → terminal session name
 	content  string
 }
 
 // NewTerminalTab creates a terminal tab.
-func NewTerminalTab(tmuxMgr *tmux.Manager) *TerminalTab {
+func NewTerminalTab(m mux.Multiplexer) *TerminalTab {
 	return &TerminalTab{
-		tmuxMgr:  tmuxMgr,
+		muxer:    m,
 		sessions: make(map[string]string),
 	}
 }
 
 // EnsureSession creates a terminal session for the instance if it doesn't exist.
+// Uses the platform default shell (zsh on Unix, pwsh/cmd on Windows).
 func (t *TerminalTab) EnsureSession(ctx context.Context, instanceTitle, worktreePath string) string {
 	sessionName := "bp_term_" + instanceTitle
 
 	if _, exists := t.sessions[instanceTitle]; !exists {
-		// Create the terminal session
-		err := t.tmuxMgr.CreateSession(ctx, "term_"+instanceTitle, worktreePath, "zsh")
+		err := t.muxer.CreateSession(ctx, "term_"+instanceTitle, worktreePath, defaultShell())
 		if err == nil {
 			t.sessions[instanceTitle] = sessionName
 		}
@@ -44,7 +45,7 @@ func (t *TerminalTab) Capture(ctx context.Context, instanceTitle string) {
 		return
 	}
 
-	content, err := t.tmuxMgr.CapturePane(ctx, sessionName)
+	content, err := t.muxer.CapturePane(ctx, sessionName)
 	if err != nil {
 		t.content = "Terminal session error: " + err.Error()
 		return
@@ -66,7 +67,7 @@ func (t *TerminalTab) HasSession(instanceTitle string) bool {
 	return exists
 }
 
-// SessionName returns the tmux session name for the instance's terminal.
+// SessionName returns the multiplexer session name for the instance's terminal.
 func (t *TerminalTab) SessionName(instanceTitle string) string {
 	return t.sessions[instanceTitle]
 }

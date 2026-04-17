@@ -6,7 +6,7 @@ import (
 
 	"github.com/JuliusBrussee/cavekit/internal/exec"
 	"github.com/JuliusBrussee/cavekit/internal/site"
-	"github.com/JuliusBrussee/cavekit/internal/tmux"
+	"github.com/JuliusBrussee/cavekit/internal/mux"
 	"github.com/JuliusBrussee/cavekit/internal/worktree"
 )
 
@@ -15,7 +15,7 @@ func TestPreviewTab_Content(t *testing.T) {
 	mock.OnCommand("tmux", func(c exec.Call) (exec.Result, error) {
 		return exec.Result{Stdout: "$ claude\nWorking...\n", ExitCode: 0}, nil
 	})
-	mgr := tmux.NewManager(mock)
+	mgr := mux.NewTmuxAdapter(mock)
 	preview := NewPreviewTab(mgr)
 
 	preview.Capture(nil, "test")
@@ -27,7 +27,7 @@ func TestPreviewTab_Content(t *testing.T) {
 
 func TestPreviewTab_Empty(t *testing.T) {
 	mock := exec.NewMockExecutor()
-	mgr := tmux.NewManager(mock)
+	mgr := mux.NewTmuxAdapter(mock)
 	preview := NewPreviewTab(mgr)
 
 	content := preview.Content()
@@ -59,7 +59,7 @@ func TestDiffTab_Content(t *testing.T) {
 
 func TestTerminalTab_NoSession(t *testing.T) {
 	mock := exec.NewMockExecutor()
-	mgr := tmux.NewManager(mock)
+	mgr := mux.NewTmuxAdapter(mock)
 	term := NewTerminalTab(mgr)
 
 	if term.HasSession("test") {

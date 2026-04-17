@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 
 	"github.com/JuliusBrussee/cavekit/internal/exec"
-	"github.com/JuliusBrussee/cavekit/internal/site"
+	"github.com/JuliusBrussee/cavekit/internal/mux"
 	"github.com/JuliusBrussee/cavekit/internal/session"
-	"github.com/JuliusBrussee/cavekit/internal/tmux"
+	"github.com/JuliusBrussee/cavekit/internal/site"
 	"github.com/JuliusBrussee/cavekit/internal/tui"
 	"github.com/JuliusBrussee/cavekit/internal/worktree"
 )
@@ -21,6 +21,13 @@ func main() {
 	cmd := "monitor"
 	if len(os.Args) > 1 {
 		cmd = os.Args[1]
+	}
+
+	// Windows-only subcommands handle themselves by dispatching to helpers
+	// defined under //go:build windows. dispatchPlatformCmd returns true iff
+	// the command belonged to the platform layer.
+	if dispatchPlatformCmd(cmd) {
+		return
 	}
 
 	switch cmd {
@@ -82,9 +89,10 @@ func runMonitor() {
 func runStatus() {
 	executor := exec.NewRealExecutor()
 	wtMgr := worktree.NewManager(executor)
+	ctx := context.Background()
 
 	cwd, _ := os.Getwd()
-	root, err := wtMgr.ProjectRoot(nil, cwd)
+	root, err := wtMgr.ProjectRoot(ctx, cwd)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "not in a git repo: %s\n", err)
 		os.Exit(1)
@@ -145,17 +153,18 @@ func computeWorktreeProgress(wtPath string) (done, total int) {
 
 func runKill() {
 	executor := exec.NewRealExecutor()
-	tmuxMgr := tmux.NewManager(executor)
+	muxer := mux.New(executor)
 	wtMgr := worktree.NewManager(executor)
+	ctx := context.Background()
 
 	cwd, _ := os.Getwd()
-	root, _ := wtMgr.ProjectRoot(nil, cwd)
+	root, _ := wtMgr.ProjectRoot(ctx, cwd)
 
-	// Kill tmux sessions
-	sessions, _ := tmuxMgr.ListSessions(nil)
+	// Kill multiplexer sessions
+	sessions, _ := muxer.ListSessions(ctx)
 	killed := 0
 	for _, s := range sessions {
-		tmuxMgr.Kill(nil, s)
+		muxer.Kill(ctx, s)
 		killed++
 	}
 
@@ -163,7 +172,7 @@ func runKill() {
 	worktrees, _ := worktree.DiscoverAll(root)
 	cleaned := 0
 	for _, wt := range worktrees {
-		wtMgr.Remove(nil, root, wt.SiteName)
+		wtMgr.Remove(ctx, root, wt.SiteName)
 		cleaned++
 	}
 
@@ -187,8 +196,8 @@ func runReset() {
 }
 
 func preflight(program string) error {
-	if _, err := osexec.LookPath("tmux"); err != nil {
-		return fmt.Errorf("tmux not installed")
+	if err := preflightMultiplexer(); err != nil {
+		return err
 	}
 	if _, err := osexec.LookPath("git"); err != nil {
 		return fmt.Errorf("git not installed")

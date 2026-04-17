@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/JuliusBrussee/cavekit/internal/exec"
-	"github.com/JuliusBrussee/cavekit/internal/tmux"
+	"github.com/JuliusBrussee/cavekit/internal/mux"
 	"github.com/JuliusBrussee/cavekit/internal/worktree"
 )
 
@@ -26,9 +26,9 @@ func newTestManager() (*Manager, *exec.MockExecutor) {
 		return exec.Result{ExitCode: 0}, nil
 	})
 
-	tmuxMgr := tmux.NewManager(mock)
+	m := mux.NewTmuxAdapter(mock)
 	wtMgr := worktree.NewManager(mock)
-	return NewManager(tmuxMgr, wtMgr), mock
+	return NewManager(m, wtMgr), mock
 }
 
 func TestManager_Create(t *testing.T) {

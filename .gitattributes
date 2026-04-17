@@ -1,0 +1,19 @@
+# Keep repo-tracked text as LF regardless of the developer's platform so
+# Windows contributors don't introduce CRLF noise in diffs.
+* text=auto eol=lf
+
+# Binary / generated artifacts — leave untouched.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.svg   text eol=lf
+*.pdf   binary
+*.zip   binary
+*.gz    binary
+
+# Windows-specific scripts keep CRLF — PowerShell is happier that way.
+*.ps1   text eol=crlf
+*.cmd   text eol=crlf
+*.bat   text eol=crlf

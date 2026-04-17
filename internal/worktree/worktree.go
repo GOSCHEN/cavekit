@@ -75,12 +75,16 @@ func (m *Manager) Create(ctx context.Context, projectRoot, siteName string) (str
 }
 
 // Exists checks if a worktree path is registered with git.
+// Normalizes path separators so Windows native backslashes match git's
+// porcelain output (which uses forward slashes).
 func (m *Manager) Exists(ctx context.Context, projectRoot, wtPath string) bool {
 	res, err := m.exec.RunDir(ctx, projectRoot, "git", "worktree", "list", "--porcelain")
 	if err != nil {
 		return false
 	}
-	return strings.Contains(res.Stdout, wtPath)
+	needle := filepath.ToSlash(wtPath)
+	haystack := filepath.ToSlash(res.Stdout)
+	return strings.Contains(haystack, needle)
 }
 
 // Remove removes a worktree and its branch.

@@ -1,44 +1,34 @@
+//go:build !windows
+
 package tmux
 
 import (
 	"os/exec"
 
-	"golang.org/x/sys/unix"
+	"golang.org/x/term"
 )
 
-// makeRaw sets the terminal to raw mode and returns the original state.
-func makeRaw(fd uintptr) (*unix.Termios, error) {
-	termios, err := unix.IoctlGetTermios(int(fd), unix.TIOCGETA)
-	if err != nil {
-		return nil, err
-	}
+// rawState wraps the opaque term.State so callers can hold onto it across
+// attach/detach without importing golang.org/x/term directly.
+type rawState = term.State
 
-	oldState := *termios
-
-	// Set raw mode
-	termios.Iflag &^= unix.IGNBRK | unix.BRKINT | unix.PARMRK | unix.ISTRIP | unix.INLCR | unix.IGNCR | unix.ICRNL | unix.IXON
-	termios.Oflag &^= unix.OPOST
-	termios.Lflag &^= unix.ECHO | unix.ECHONL | unix.ICANON | unix.ISIG | unix.IEXTEN
-	termios.Cflag &^= unix.CSIZE | unix.PARENB
-	termios.Cflag |= unix.CS8
-	termios.Cc[unix.VMIN] = 1
-	termios.Cc[unix.VTIME] = 0
-
-	if err := unix.IoctlSetTermios(int(fd), unix.TIOCSETA, termios); err != nil {
-		return nil, err
-	}
-
-	return &oldState, nil
+// makeRaw puts the terminal attached to fd into raw mode and returns the
+// previous state so restoreTerminal can undo it. Works on Linux, macOS and
+// other Unix targets via golang.org/x/term.
+func makeRaw(fd uintptr) (*rawState, error) {
+	return term.MakeRaw(int(fd))
 }
 
-// restoreTerminal restores the terminal to its original state.
-func restoreTerminal(fd uintptr, state *unix.Termios) {
-	if state != nil {
-		unix.IoctlSetTermios(int(fd), unix.TIOCSETA, state)
+// restoreTerminal returns the terminal at fd to the state captured by makeRaw.
+func restoreTerminal(fd uintptr, state *rawState) {
+	if state == nil {
+		return
 	}
+	_ = term.Restore(int(fd), state)
 }
 
-// buildCommand creates an exec.Cmd without using the executor (attach needs a raw process).
+// buildCommand creates an exec.Cmd without using the executor (attach needs a
+// raw process whose stdio we can splice ourselves).
 func buildCommand(name string, args ...string) *exec.Cmd {
 	return exec.Command(name, args...)
 }

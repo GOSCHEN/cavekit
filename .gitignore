@@ -5,3 +5,12 @@
 /docs
 /.playwright-mcp
 current-site-full.png
+
+# Go build artifacts
+/cavekit
+/cavekit.exe
+
+# Editor / IDE
+.serena/
+.idea/
+.vscode/

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-)
 
-const defaultStatePath = ".cavekit/state.json"
+	"github.com/JuliusBrussee/cavekit/internal/paths"
+)
 
 // Store handles saving and loading instance state.
 type Store struct {
@@ -14,11 +14,10 @@ type Store struct {
 }
 
 // NewStore creates a persistence store at the given path.
-// If empty, uses ~/.cavekit/state.json.
+// If empty, uses the canonical ~/.cavekit/state.json location.
 func NewStore(path string) *Store {
 	if path == "" {
-		home, _ := os.UserHomeDir()
-		path = filepath.Join(home, defaultStatePath)
+		path = paths.StateFile()
 	}
 	return &Store{path: path}
 }

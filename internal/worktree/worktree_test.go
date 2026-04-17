@@ -2,6 +2,7 @@ package worktree
 
 import (
 	"context"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -17,8 +18,9 @@ func TestWorktreePath(t *testing.T) {
 	}
 	for _, tt := range tests {
 		got := WorktreePath(tt.root, tt.site)
-		if got != tt.want {
-			t.Errorf("WorktreePath(%q, %q) = %q, want %q", tt.root, tt.site, got, tt.want)
+		want := filepath.FromSlash(tt.want)
+		if got != want {
+			t.Errorf("WorktreePath(%q, %q) = %q, want %q", tt.root, tt.site, got, want)
 		}
 	}
 }
@@ -60,7 +62,7 @@ func TestManager_Create_NewBranch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
-	if path != "/code/myproject-cavekit-auth" {
+	if path != filepath.FromSlash("/code/myproject-cavekit-auth") {
 		t.Errorf("path = %q, unexpected", path)
 	}
 }
@@ -82,7 +84,7 @@ func TestManager_Create_ExistingWorktree(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
-	if path != "/code/myproject-cavekit-auth" {
+	if path != filepath.FromSlash("/code/myproject-cavekit-auth") {
 		t.Errorf("path = %q, unexpected", path)
 	}
 	// Should have only called worktree list (no create commands)

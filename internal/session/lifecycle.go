@@ -7,20 +7,20 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/JuliusBrussee/cavekit/internal/tmux"
+	"github.com/JuliusBrussee/cavekit/internal/mux"
 	"github.com/JuliusBrussee/cavekit/internal/worktree"
 )
 
 // Manager orchestrates instance lifecycle operations.
 type Manager struct {
-	tmux     *tmux.Manager
+	mux      mux.Multiplexer
 	worktree *worktree.Manager
 }
 
 // NewManager creates a session manager.
-func NewManager(tmuxMgr *tmux.Manager, wtMgr *worktree.Manager) *Manager {
+func NewManager(m mux.Multiplexer, wtMgr *worktree.Manager) *Manager {
 	return &Manager{
-		tmux:     tmuxMgr,
+		mux:      m,
 		worktree: wtMgr,
 	}
 }
@@ -28,11 +28,11 @@ func NewManager(tmuxMgr *tmux.Manager, wtMgr *worktree.Manager) *Manager {
 // Create allocates a new instance with the given title and site info.
 func (m *Manager) Create(title, sitePath, siteName, program string) *Instance {
 	inst := NewInstance(title, sitePath, program)
-	inst.TmuxSession = tmux.SessionName(siteName)
+	inst.TmuxSession = mux.SessionName(siteName)
 	return inst
 }
 
-// Start creates the worktree and tmux session, then sends the build command.
+// Start creates the worktree and multiplexer session, then sends the build command.
 func (m *Manager) Start(ctx context.Context, inst *Instance, projectRoot, siteName string, startupDelay time.Duration) error {
 	inst.Status = StatusLoading
 
@@ -43,12 +43,12 @@ func (m *Manager) Start(ctx context.Context, inst *Instance, projectRoot, siteNa
 	}
 	inst.WorktreePath = wtPath
 
-	// Create tmux session
-	err = m.tmux.CreateSession(ctx, siteName, wtPath, inst.Program)
+	// Create multiplexer session
+	err = m.mux.CreateSession(ctx, siteName, wtPath, inst.Program)
 	if err != nil {
-		return fmt.Errorf("create tmux session: %w", err)
+		return fmt.Errorf("create mux session: %w", err)
 	}
-	inst.TmuxSession = tmux.SessionName(siteName)
+	inst.TmuxSession = mux.SessionName(siteName)
 	inst.Status = StatusRunning
 
 	// Wait for startup, then send the build command
@@ -56,11 +56,11 @@ func (m *Manager) Start(ctx context.Context, inst *Instance, projectRoot, siteNa
 		go func() {
 			time.Sleep(startupDelay)
 			cmd := fmt.Sprintf("/ck:make --filter %s", siteName)
-			m.tmux.SendCommand(ctx, siteName, cmd)
+			m.mux.SendCommand(ctx, siteName, cmd)
 		}()
 	} else {
 		cmd := fmt.Sprintf("/ck:make --filter %s", siteName)
-		m.tmux.SendCommand(ctx, siteName, cmd)
+		m.mux.SendCommand(ctx, siteName, cmd)
 	}
 
 	return nil
@@ -73,15 +73,15 @@ func (m *Manager) Pause(inst *Instance) {
 
 // Resume re-attaches an instance to TUI tracking.
 func (m *Manager) Resume(ctx context.Context, inst *Instance) {
-	if m.tmux.Exists(ctx, inst.TmuxSession) {
+	if m.mux.Exists(ctx, inst.TmuxSession) {
 		inst.Status = StatusRunning
 	}
 }
 
-// Kill destroys the tmux session and optionally removes the worktree.
+// Kill destroys the multiplexer session and optionally removes the worktree.
 func (m *Manager) Kill(ctx context.Context, inst *Instance, projectRoot string, removeWorktree bool) error {
-	// Kill tmux session
-	if err := m.tmux.Kill(ctx, inst.TmuxSession); err != nil {
+	// Kill multiplexer session
+	if err := m.mux.Kill(ctx, inst.TmuxSession); err != nil {
 		// Non-fatal: session might already be gone
 	}
 

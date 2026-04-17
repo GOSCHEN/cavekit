@@ -3,19 +3,19 @@ package tui
 import (
 	"context"
 
-	"github.com/JuliusBrussee/cavekit/internal/tmux"
+	"github.com/JuliusBrussee/cavekit/internal/mux"
 )
 
-// PreviewTab captures and renders tmux pane content for the selected instance.
+// PreviewTab captures and renders multiplexer pane content for the selected instance.
 type PreviewTab struct {
-	tmuxMgr    *tmux.Manager
+	muxer      mux.Multiplexer
 	content    string
 	scrollMode bool
 }
 
 // NewPreviewTab creates a preview tab.
-func NewPreviewTab(tmuxMgr *tmux.Manager) *PreviewTab {
-	return &PreviewTab{tmuxMgr: tmuxMgr}
+func NewPreviewTab(m mux.Multiplexer) *PreviewTab {
+	return &PreviewTab{muxer: m}
 }
 
 // Capture refreshes the pane content for the given session.
@@ -28,9 +28,9 @@ func (p *PreviewTab) Capture(ctx context.Context, sessionName string) {
 	var content string
 	var err error
 	if p.scrollMode {
-		content, err = p.tmuxMgr.CaptureScrollback(ctx, sessionName)
+		content, err = p.muxer.CaptureScrollback(ctx, sessionName)
 	} else {
-		content, err = p.tmuxMgr.CapturePane(ctx, sessionName)
+		content, err = p.muxer.CapturePane(ctx, sessionName)
 	}
 	if err != nil {
 		p.content = "Failed to capture: " + err.Error()

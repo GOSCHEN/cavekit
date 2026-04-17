@@ -10,9 +10,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/JuliusBrussee/cavekit/internal/exec"
+	"github.com/JuliusBrussee/cavekit/internal/mux"
 	"github.com/JuliusBrussee/cavekit/internal/session"
 	"github.com/JuliusBrussee/cavekit/internal/site"
-	"github.com/JuliusBrussee/cavekit/internal/tmux"
 	"github.com/JuliusBrussee/cavekit/internal/worktree"
 )
 
@@ -89,13 +89,13 @@ type App struct {
 	sessionMgr     *session.Manager
 	store          *session.Store
 	autoYes        *session.AutoYes
-	statusDetector *tmux.StatusDetector
+	statusDetector *mux.StatusDetector
 	projectRoot    string
 	program        string
 
-	// Input mode: keystrokes forwarded to tmux session
+	// Input mode: keystrokes forwarded to the multiplexer session
 	inputMode bool
-	tmuxMgr   *tmux.Manager
+	muxer     mux.Multiplexer
 
 	// Tick counter for staggering
 	tickCount int
@@ -107,9 +107,9 @@ type App struct {
 // NewApp creates a new TUI application model.
 func NewApp(projectRoot, program string, autoYesEnabled bool) App {
 	executor := exec.NewRealExecutor()
-	tmuxMgr := tmux.NewManager(executor)
+	muxer := mux.New(executor)
 	wtMgr := worktree.NewManager(executor)
-	sessMgr := session.NewManager(tmuxMgr, wtMgr)
+	sessMgr := session.NewManager(muxer, wtMgr)
 	store := session.NewStore("")
 
 	return App{
@@ -124,9 +124,9 @@ func NewApp(projectRoot, program string, autoYesEnabled bool) App {
 		dashboard:    NewDashboard(),
 
 		// Tab data sources
-		previewTab:  NewPreviewTab(tmuxMgr),
+		previewTab:  NewPreviewTab(muxer),
 		diffTab:     NewDiffTab(wtMgr),
-		terminalTab: NewTerminalTab(tmuxMgr),
+		terminalTab: NewTerminalTab(muxer),
 
 		// Site picker
 		sitePicker: NewSitePicker(),
@@ -134,9 +134,9 @@ func NewApp(projectRoot, program string, autoYesEnabled bool) App {
 		// Session management
 		sessionMgr:     sessMgr,
 		store:          store,
-		autoYes:        session.NewAutoYes(tmuxMgr, autoYesEnabled),
-		statusDetector: tmux.NewStatusDetector(tmuxMgr),
-		tmuxMgr:        tmuxMgr,
+		autoYes:        session.NewAutoYes(muxer, autoYesEnabled),
+		statusDetector: mux.NewStatusDetector(muxer),
+		muxer:          muxer,
 		projectRoot:    projectRoot,
 		program:        program,
 	}
@@ -390,9 +390,9 @@ func (a *App) onTick() {
 				paneStatus, err := a.statusDetector.Detect(ctx, inst.TmuxSession)
 				if err == nil {
 					switch paneStatus {
-					case tmux.PaneActive:
+					case mux.PaneActive:
 						inst.Status = session.StatusRunning
-					case tmux.PaneIdle, tmux.PanePrompt:
+					case mux.PaneIdle, mux.PanePrompt:
 						inst.Status = session.StatusReady
 					}
 				}
@@ -641,28 +641,28 @@ func (a *App) forwardKey(key string, msg tea.KeyMsg) {
 
 	switch key {
 	case "enter":
-		a.tmuxMgr.SendKeys(ctx, sel.TmuxSession, "Enter")
+		a.muxer.SendKeys(ctx, sel.TmuxSession, "Enter")
 	case "backspace":
-		a.tmuxMgr.SendKeys(ctx, sel.TmuxSession, "BSpace")
+		a.muxer.SendKeys(ctx, sel.TmuxSession, "BSpace")
 	case "tab":
-		a.tmuxMgr.SendKeys(ctx, sel.TmuxSession, "Tab")
+		a.muxer.SendKeys(ctx, sel.TmuxSession, "Tab")
 	case "up":
-		a.tmuxMgr.SendKeys(ctx, sel.TmuxSession, "Up")
+		a.muxer.SendKeys(ctx, sel.TmuxSession, "Up")
 	case "down":
-		a.tmuxMgr.SendKeys(ctx, sel.TmuxSession, "Down")
+		a.muxer.SendKeys(ctx, sel.TmuxSession, "Down")
 	case "left":
-		a.tmuxMgr.SendKeys(ctx, sel.TmuxSession, "Left")
+		a.muxer.SendKeys(ctx, sel.TmuxSession, "Left")
 	case "right":
-		a.tmuxMgr.SendKeys(ctx, sel.TmuxSession, "Right")
+		a.muxer.SendKeys(ctx, sel.TmuxSession, "Right")
 	case " ":
-		a.tmuxMgr.SendKeys(ctx, sel.TmuxSession, "Space")
+		a.muxer.SendKeys(ctx, sel.TmuxSession, "Space")
 	case "ctrl+c":
-		a.tmuxMgr.SendKeys(ctx, sel.TmuxSession, "C-c")
+		a.muxer.SendKeys(ctx, sel.TmuxSession, "C-c")
 	case "ctrl+d":
-		a.tmuxMgr.SendKeys(ctx, sel.TmuxSession, "C-d")
+		a.muxer.SendKeys(ctx, sel.TmuxSession, "C-d")
 	default:
 		if len(key) == 1 {
-			a.tmuxMgr.SendKeys(ctx, sel.TmuxSession, key)
+			a.muxer.SendKeys(ctx, sel.TmuxSession, key)
 		}
 	}
 }
@@ -681,9 +681,9 @@ func Run(projectRoot, program string, autoYes bool) error {
 	instances, _ := app.store.Load()
 	if len(instances) > 0 {
 		ctx := context.Background()
-		tmuxMgr := tmux.NewManager(exec.NewRealExecutor())
+		muxer := mux.New(exec.NewRealExecutor())
 		for _, inst := range instances {
-			if inst.TmuxSession != "" && !tmuxMgr.Exists(ctx, inst.TmuxSession) {
+			if inst.TmuxSession != "" && !muxer.Exists(ctx, inst.TmuxSession) {
 				inst.Status = session.StatusDone
 			}
 		}
