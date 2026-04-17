@@ -16,10 +16,10 @@ This is the first phase of Cavekit. You are writing implementation-agnostic kits
 
 Before doing any substantive work:
 
-1. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" summary` and print that exact line once.
-2. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" model exploration` and store it as `EXPLORATION_MODEL`.
-3. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" model reasoning` and store it as `REASONING_MODEL`.
-4. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" caveman-active draft` and treat the result as `CAVEMAN_ACTIVE` (true/false). Draft phase is NOT in the default caveman_phases, so this will typically be false. If true, apply caveman-speak to research agent prompts and internal summaries only — never to kit content, user-facing design proposals, or questions.
+1. Run `cavekit config summary` and print that exact line once.
+2. Run `cavekit config model exploration` and store it as `EXPLORATION_MODEL`.
+3. Run `cavekit config model reasoning` and store it as `REASONING_MODEL`.
+4. Run `cavekit config caveman-active draft` and treat the result as `CAVEMAN_ACTIVE` (true/false). Draft phase is NOT in the default caveman_phases, so this will typically be false. If true, apply caveman-speak to research agent prompts and internal summaries only — never to kit content, user-facing design proposals, or questions.
 
 Keep the user Q&A in the parent thread. Use `EXPLORATION_MODEL` for helper exploration/research and `REASONING_MODEL` for cavekit generation and review.
 

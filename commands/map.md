@@ -16,9 +16,9 @@ No domain plans. No file ownership. No time budgets. Just: tasks, what cavekit r
 
 Before generating the site:
 
-1. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" summary` and print that exact line once.
-2. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" model reasoning` and treat the result as `REASONING_MODEL`.
-3. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" caveman-active architect` and treat the result as `CAVEMAN_ACTIVE` (true/false). Architect phase is NOT in the default caveman_phases, so this will typically be false. If true, apply caveman-speak to status updates and architect subagent reasoning only — never to build site content (task titles, descriptions, coverage matrix).
+1. Run `cavekit config summary` and print that exact line once.
+2. Run `cavekit config model reasoning` and treat the result as `REASONING_MODEL`.
+3. Run `cavekit config caveman-active architect` and treat the result as `CAVEMAN_ACTIVE` (true/false). Architect phase is NOT in the default caveman_phases, so this will typically be false. If true, apply caveman-speak to status updates and architect subagent reasoning only — never to build site content (task titles, descriptions, coverage matrix).
 
 Do NOT rely on the agent frontmatter model. Dispatch the actual site-generation work to a `ck:map` subagent with `model: "{REASONING_MODEL}"`.
 

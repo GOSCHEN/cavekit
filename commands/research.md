@@ -28,9 +28,9 @@ Generate a **topic slug** from the description — kebab-case, 2-4 words. Exampl
 
 Before dispatching any research agents:
 
-1. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" summary` and print that exact line once.
-2. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" model exploration` and treat the result as `EXPLORATION_MODEL`.
-3. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" model reasoning` and treat the result as `REASONING_MODEL`.
+1. Run `cavekit config summary` and print that exact line once.
+2. Run `cavekit config model exploration` and treat the result as `EXPLORATION_MODEL`.
+3. Run `cavekit config model reasoning` and treat the result as `REASONING_MODEL`.
 
 Use `EXPLORATION_MODEL` for codebase/web researchers and `REASONING_MODEL` for the synthesizer.
 

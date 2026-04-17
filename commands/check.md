@@ -17,9 +17,9 @@ Run this after `/ck:make` completes (or is stopped). It does two things:
 
 Before starting inspection:
 
-1. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" summary` and print that exact line once.
-2. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" model reasoning` and treat the result as `REASONING_MODEL`.
-3. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" caveman-active inspect` and treat the result as `CAVEMAN_ACTIVE` (true/false).
+1. Run `cavekit config summary` and print that exact line once.
+2. Run `cavekit config model reasoning` and treat the result as `REASONING_MODEL`.
+3. Run `cavekit config caveman-active inspect` and treat the result as `CAVEMAN_ACTIVE` (true/false).
 
 Use `REASONING_MODEL` explicitly for the delegated surveyor and inspector work below.
 

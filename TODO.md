@@ -28,9 +28,9 @@ Each task: golden-file parity tests vs existing `.sh`.
 
 ## M4 — Plugin cut-over
 
-- [ ] **T-020** Rewrite `commands/*.md` — `${CLAUDE_PLUGIN_ROOT}/scripts/x.sh` → `cavekit x`
-- [ ] **T-021** Wire PreToolUse hook to `cavekit command-gate`
-- [ ] **T-022** `scripts/*.sh` shims exec-ing `cavekit <subcommand>` (deprecation window)
+- [x] **T-020** Rewrite `commands/*.md` — `${CLAUDE_PLUGIN_ROOT}/scripts/x.sh` → `cavekit x`
+- [x] **T-021** Wire PreToolUse hook to `cavekit command-gate` (ships as `hooks.json`)
+- [x] **T-022** `scripts/*.sh` shims exec-ing `cavekit <subcommand>` (deprecation window)
 
 ## M5 — Installers
 

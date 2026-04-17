@@ -16,9 +16,9 @@ Create, import, update, or audit the project's visual design system document. DE
 
 Before doing any substantive work:
 
-1. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" summary` and print that exact line once.
-2. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" model exploration` and store it as `EXPLORATION_MODEL`.
-3. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" model reasoning` and store it as `REASONING_MODEL`.
+1. Run `cavekit config summary` and print that exact line once.
+2. Run `cavekit config model exploration` and store it as `EXPLORATION_MODEL`.
+3. Run `cavekit config model reasoning` and store it as `REASONING_MODEL`.
 
 Keep the user Q&A in the parent thread. Use `EXPLORATION_MODEL` for research and `REASONING_MODEL` for design system generation and review.
 

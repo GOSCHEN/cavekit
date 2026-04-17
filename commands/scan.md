@@ -11,8 +11,8 @@ You are performing a gap analysis: comparing what was actually built (implementa
 
 Before dispatching any agent:
 
-1. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" summary` and print that exact line once.
-2. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" model reasoning` and treat the result as `REASONING_MODEL`.
+1. Run `cavekit config summary` and print that exact line once.
+2. Run `cavekit config model reasoning` and treat the result as `REASONING_MODEL`.
 
 Dispatch a `ck:surveyor` agent with `model: "{REASONING_MODEL}"` and the following instructions. If the agent tool is unavailable, execute the instructions directly.
 

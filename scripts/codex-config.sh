@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
-# codex-config.sh — Backward-compatible wrapper around scripts/bp-config.sh
+# Deprecated shim — forwards to 'cavekit config'.
+# Removed in cavekit 2.2.0. Update callers to invoke cavekit directly.
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/bp-config.sh"
-
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  set -euo pipefail
-  bp_config_main "$@"
-fi
+printf '[deprecation] %s is a shim for %s. Update callers.\n' "codex-config.sh" 'cavekit config' >&2
+exec cavekit config "$@"

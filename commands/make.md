@@ -2,7 +2,7 @@
 name: ck-make
 description: "Implement a build site or plan — automatically parallelizes independent tasks and progresses through tiers autonomously"
 argument-hint: "[FILE] [--filter PATTERN] [--peer-review] [--max-iterations N] [--completion-promise TEXT]"
-allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/setup-build.sh:*)", "Bash(${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh:*)", "Bash(git *)"]
+allowed-tools: ["Bash(cavekit setup-build:*)", "Bash(cavekit config:*)", "Bash(git *)"]
 ---
 
 > **Note:** `/bp:build`, `/ck:build`, `/bp:make` are deprecated aliases. Use `/ck:make` instead.
@@ -12,16 +12,16 @@ allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/setup-build.sh:*)", "Bash(${
 This is the third phase of Cavekit. Execute the setup script:
 
 ```!
-"${CLAUDE_PLUGIN_ROOT}/scripts/setup-build.sh" $ARGUMENTS
+cavekit setup-build $ARGUMENTS
 ```
 
 ## Resolve Execution Profile
 
 Before starting waves:
 
-1. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" summary` and report that exact line once.
-2. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" model execution` and treat the result as `EXECUTION_MODEL`.
-3. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" caveman-active build` and treat the result as `CAVEMAN_ACTIVE` (true/false).
+1. Run `cavekit config summary` and report that exact line once.
+2. Run `cavekit config model execution` and treat the result as `EXECUTION_MODEL`.
+3. Run `cavekit config caveman-active build` and treat the result as `CAVEMAN_ACTIVE` (true/false).
 4. Use that exact `EXECUTION_MODEL` string in every `ck:task-builder` delegation below. Do not hard-code `opus`, `sonnet`, or `haiku` in this command.
 5. If `CAVEMAN_ACTIVE` is `true`, all your own wave logs, iteration summaries, and status reports in this command should use caveman-speak (drop articles, filler, pleasantries — keep technical terms exact, code blocks unchanged). Spec artifacts (kits, build sites, impl tracking field values) stay in normal prose.
 
@@ -139,32 +139,32 @@ Once the setup script completes (outputs the ralph prompt), you run the executio
 
 6. **Tier boundary check** — after updating impl tracking, check whether all tasks in the current tier are now done. If the current tier still has undone tasks, skip this step. If the tier is complete, run the Codex tier gate review (the `TIER_START_REF` was captured in step 1 at the start of this tier):
 
-   a. Source `codex-config.sh` and check `tier_gate_mode` via `bp_config_get tier_gate_mode`. If the value is `"off"`, skip the review and log:
+   a. Run `cavekit config get tier_gate_mode`. If the value is `"off"`, skip the review and log:
       ```
       [ck:tier-gate] Tier gate review disabled (tier_gate_mode=off). Skipping.
       ```
 
-   b. Source `codex-detect.sh` and check `codex_available`. If `false`, log a note and continue:
+   b. Run `cavekit codex detect` and check `codex_available=true`. If `false`, log a note and continue:
       ```
       [ck:tier-gate] Codex unavailable — skipping tier boundary review. Continuing to next tier.
       ```
 
    c. Otherwise, run the review inline (wait for it to complete before advancing):
       ```
-      scripts/codex-review.sh --base $TIER_START_REF
+      cavekit codex review --base $TIER_START_REF
       ```
 
-   d. **Severity-based gating** — after the review, source `scripts/codex-gate.sh` and run `bp_tier_gate`:
+   d. **Severity-based gating** — after the review, run `cavekit codex gate evaluate`:
       - If `GATE_RESULT=proceed`: log the tier review summary and advance.
       - If `GATE_RESULT=blocked`: the tier has P0/P1 findings (or all findings in `strict` mode) that must be fixed before advancing.
 
-   e. **When blocked** — run the review-fix cycle using `bp_review_fix_cycle $TIER_START_REF 2`:
-      - The cycle function runs the review, evaluates the gate, and if blocked returns exit code 2 with `AWAITING_FIXES` and the fix task list
+   e. **When blocked** — run the review-fix cycle using `cavekit codex gate cycle $TIER_START_REF 2`:
+      - The cycle runs the review, evaluates the gate, and if blocked exits with code 2 and `AWAITING_FIXES` plus the fix task list
       - For each fix task in the output: read the finding's file and description, implement the fix, commit
-      - After fixes, mark each fixed finding: `bp_findings_update_status <F-ID> FIXED`
-      - Call `bp_review_fix_cycle` again for the re-review (it tracks the cycle count internally)
-      - **Maximum 2 review-fix cycles per tier** — after 2 cycles, the function returns exit code 1 and logs a warning; advance to the next tier regardless
-      - If the function returns 0, all blocking findings are resolved — advance normally
+      - After fixes, mark each fixed finding: `cavekit codex findings update <F-ID> FIXED`
+      - Call `cavekit codex gate cycle` again for the re-review (it tracks the cycle count internally)
+      - **Maximum 2 review-fix cycles per tier** — after 2 cycles the command exits with code 1 and logs a warning; advance to the next tier regardless
+      - Exit code 0 means all blocking findings are resolved — advance normally
 
    ```
    ═══ Tier {N} Complete — Codex Review ═══

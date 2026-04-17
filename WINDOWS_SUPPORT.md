@@ -79,7 +79,7 @@ SendKeys / Capture / Kill
 | **M1** Cross-compile green | T-001, T-002, T-003 | `GOOS=windows go build ./...` passes, tests green | ✅ shipped |
 | **M2** Windows TUI + multiplexer | T-005a, T-005b, T-005c, T-007 | E2E test green on Windows 11 | ✅ shipped |
 | **M3** Go-native plugin backend | T-004, T-008..T-019 | Golden-file parity tests vs shell | ✅ shipped |
-| **M4** Plugin cut-over | T-020..T-022 | Slash commands call `cavekit` not `.sh` | pending |
+| **M4** Plugin cut-over | T-020..T-022 | Slash commands call `cavekit` not `.sh` | ✅ shipped |
 | **M5** Installers | T-023..T-025 | Clean-VM installs both OSes | pending |
 | **M6** Polish | T-026..T-030 | Docs + 2.1.0 release | pending |
 
@@ -119,9 +119,9 @@ Per task: golden-file parity tests — feed same inputs to shell and Go impl, di
 
 ### Tier 3 — Plugin wiring (pending)
 
-- **T-020** Rewrite `commands/*.md` — replace `${CLAUDE_PLUGIN_ROOT}/scripts/xxx.sh` with `cavekit xxx`
-- **T-021** Plugin hooks → `cavekit command-gate`
-- **T-022** Thin `scripts/*.sh` shims that `exec cavekit ...` (deprecation window, deletable after a release)
+- **T-020** ✅ Rewrite `commands/*.md` — replace `${CLAUDE_PLUGIN_ROOT}/scripts/xxx.sh` with `cavekit xxx`
+- **T-021** ✅ Plugin hooks → `cavekit command-gate` (via `hooks.json`)
+- **T-022** ✅ Thin `scripts/*.sh` shims that `exec cavekit ...` (deprecation window, deletable after a release)
 
 ### Tier 4 — Installers (pending)
 
